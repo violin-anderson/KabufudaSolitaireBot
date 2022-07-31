@@ -1,0 +1,6 @@
+
+pyautogui
+numpy
+mss
+matplotlib
+opencv-python

@@ -4,8 +4,6 @@
 from copy import deepcopy
 import time
 
-from numpy import isin
-
 PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]
 STACKS = 8
 STARTSPOTS = 1

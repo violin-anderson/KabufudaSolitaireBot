@@ -10,7 +10,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 import read, solve
 
-MONITOR = 2
+MONITOR = 0
 
 sct = mss.mss()
 
