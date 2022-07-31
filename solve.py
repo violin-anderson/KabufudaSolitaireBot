@@ -4,6 +4,8 @@
 from copy import deepcopy
 import time
 
+from numpy import isin
+
 PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37]
 STACKS = 8
 STARTSPOTS = 1
@@ -11,7 +13,7 @@ MAXSPOTS = 4
 UNIQUECARDS = 10
 DUPES = 4
 
-DEBUG = 0
+DEBUG = 1
 
 class collapsed:
     def __init__(self, card):
@@ -136,6 +138,7 @@ class game:
         self.parent = None
         self.fromAction = None
         self.toAction = None
+        self.quality = None
     
     def getChild(self):
         child = deepcopy(self)
@@ -202,6 +205,20 @@ class game:
         if self.parent is None:
             return 1
         return 1 + self.parent.getDepth()
+    
+    def getQuality(self):
+        if self.quality is not None:
+            return self.quality
+        
+        # Higher is better
+        self.quality = self.getDepth() 
+        self.quality -= 2 * sum([not (s.isEmpty() or s.isCollapsed()) for s in self.spots])
+        self.quality += 3 * sum([(s.isEmpty() or s.isCollapsed()) for s in self.spots + self.stacks])
+        return self.quality
+
+    def __lt__(self, other):
+        assert(isinstance(other, game))
+        return self.getQuality() < other.getQuality()
 
     def __hash__(self):
         return sum([i.__hash__() for i in self.stacks]) * 3 + sum([i.__hash__() for i in self.spots]) * 13
@@ -251,6 +268,11 @@ def main():
     sln = solveGame(gl)
 
     endTime = time.time()
+
+    printSolution(sln)
+    print('Time: ' + str(endTime - startTime))
+
+def printSolution(sln):
     print("\n\nFINAL SOLUTION:")
     slnString = str(sln)
     parent = sln.parent
@@ -259,7 +281,6 @@ def main():
         parent = parent.parent
     print(slnString)
     print('Depth: ' + str(sln.getDepth()))
-    print('Time: ' + str(endTime - startTime))
 
 def solveGame(gl):
     verifyGame(gl)
@@ -271,6 +292,7 @@ def solveGame(gl):
     startTime = time.time()
 
     while len(stack) > 0 and (time.time() - startTime < 0 or best is None):
+        stack.sort()
         g = stack.pop()
         if DEBUG >= 2:
             print('\nStarting game board with parent:')
